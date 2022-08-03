@@ -7,7 +7,12 @@ const { Op } = require('sequelize')
 //get bands
 bands.get('/', async (req, res) => {
     try {
-        const foundBands = await Band.findAll()
+        const foundBands = await Band.findAll({
+            order: [['available_start_time', 'ASC']],
+            where: {
+                name: { [Op.like]: `%${req.query.name ? req.query.name : ''}%` }
+            }
+        })
         res.status(200).json(foundBands)
     } catch (error) {
         res.status(500).json(error)
@@ -38,6 +43,10 @@ bands.get('/:name', async (req, res) => {
 
                     }
                 }
+            ],
+            order: [
+                [{ model: MeetGreet, as: "meet_greets" }, { model: Event, as: "event" }, 'date', 'DESC'],
+                [{ model: SetTime, as: "set_times" }, { model: Event, as: "event" }, 'date', 'DESC']
             ]
         })
         res.status(200).json(foundBand)
