@@ -1,6 +1,7 @@
 const bands = require('express').Router()
 const db = require('../models')
 const { Band } = db
+const { Op } = require('sequelize')
 
 //ROUTES
 //get bands
@@ -17,7 +18,10 @@ bands.get('/:id', async (req, res) => {
     try{
         //this section finds by id but can be refactored to search by name, etc by changing the object inside the findOne method
         const foundBand = await Band.findOne({
-            where: {band_id: req.params.id}
+            order: [['available_start_time', 'ASC']],
+            where: {
+                name: { [Op.like]: `%${req.query.name ? req.query.name : ''}%`}
+            }
         })
         res.status(200).json(foundBand)
     }catch(error){
